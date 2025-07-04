@@ -11,12 +11,14 @@ from checklist_api.database import get_session
 from checklist_api.main import app
 from checklist_api.models import User, table_registry
 from checklist_api.security import get_password_hash
+from checklist_api.settings import Settings
 
 
 @pytest.fixture
 def client(session):
     def get_session_override():
         return session
+
     with TestClient(app) as client:
         app.dependency_overrides[get_session] = get_session_override
         yield client
@@ -28,13 +30,11 @@ def client(session):
 def session():
     engine = create_engine(
         'sqlite:///:memory:',
-        connect_args={
-            'check_same_thread': False,
-            'isolation_level': None
-            },
+        connect_args={'check_same_thread': False, 'isolation_level': None},
         poolclass=StaticPool,
         pool_pre_ping=True,
-        echo=False)
+        echo=False,
+    )
 
     table_registry.metadata.create_all(engine)
 
@@ -48,7 +48,6 @@ def session():
 
 @contextmanager
 def _mock_db_time(*, model, time=datetime(2025, 1, 1)):
-
     def fake_time_hook(mapper, connection, target):
         if hasattr(target, 'created_at'):
             target.created_at = time
@@ -71,7 +70,8 @@ def user(session):
     user = User(
         username='Teste',
         email='teste@test.com',
-        password=get_password_hash(password))
+        password=get_password_hash(password),
+    )
     session.add(user)
     session.commit()
     session.refresh(user)
@@ -84,10 +84,12 @@ def user(session):
 @pytest.fixture
 def token(client, user):
     response = client.post(
-        '/token',
-        data={
-            'username': user.email,
-            'password': user.clean_password
-        }
+        'auth/token',
+        data={'username': user.email, 'password': user.clean_password},
     )
     return response.json()['access_token']
+
+
+@pytest.fixture
+def settings():
+    return Settings()
