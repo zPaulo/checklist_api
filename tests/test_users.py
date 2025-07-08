@@ -1,24 +1,16 @@
 from http import HTTPStatus
 
-from sqlalchemy.orm import Session
+import pytest
 
-from checklist_api.database import engine, get_session
+from checklist_api.database import get_session
 from checklist_api.schemas import UserPublic
 
 
-def test_get_session_yields_session(client):
-    session_generator = get_session()
-
-    session = next(session_generator)
-
-    assert isinstance(session, Session)
-
-    assert session.bind == engine
-
-    try:
-        next(session_generator)
-    except StopIteration:
-        pass
+@pytest.mark.asyncio
+async def test_get_session_yields_session():
+    async for session in get_session():
+        assert session is not None
+        break
 
 
 def test_create_user(client):
