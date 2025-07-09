@@ -1,4 +1,6 @@
 import asyncio
+import sys
+
 
 from logging.config import fileConfig
 
@@ -12,6 +14,9 @@ from alembic import context
 
 from checklist_api.models import table_registry
 from checklist_api.settings import Settings
+
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 config = context.config
 config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)
