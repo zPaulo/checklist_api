@@ -6,6 +6,9 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Copia os arquivos do repositório
+              uses: actions/checkout@v4
+
             - name: Instalar o python
               uses: actions/setup-python@v5
               with:
@@ -13,3 +16,9 @@ jobs:
             
             - name: Instalar o poetry
               run: "pipx install poetry"
+            
+            - name: Instalar o poetry
+              run: "poetry install"
+
+            - name: Executando testes
+              run: "poetry run task test"
