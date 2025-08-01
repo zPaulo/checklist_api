@@ -22,7 +22,7 @@ def test_create_todo(client, token):
         '/todos',
         headers={'Authorization': f'Bearer {token}'},
         json={
-            'title': 'Test todo checklist',
+            'title': 'Test todo',
             'description': 'Test todo description',
             'state': 'draft',
         },
